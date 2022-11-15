@@ -17,27 +17,12 @@ dp = Dispatcher(bot, storage=MemoryStorage())
 @dp.message_handler(commands=["start"])
 async def cmd_start(message: types.Message):
     await message.answer("Привет! Этот бот умеет решать задачи \n из упражнения главы Обзор стека TCP/IP.", reply_markup=types.ReplyKeyboardRemove())
-    await message.answer("Всего доступно два вида задания. В первом указан только IP-адрес и битность маски, во втором еще указано количество компьютеров и прикреплен файл с текстовым описанием")
-    with open("users.txt", "a") as fp:
-      json.dump(str(message.date) + " " +str(message.from_user.username) , fp)
-      fp.write("\n")
-    kb = [
-      [
-        types.KeyboardButton(text="Первый тип"),
-        types.KeyboardButton(text="Второй тип")
-      ],
-    ]
-    keyboard = types.ReplyKeyboardMarkup(
-        keyboard=kb,
-        resize_keyboard=True,
-        input_field_placeholder="Какое задание надо решить"
-    )
-    await message.answer("Выбери какое задание надо решить?", reply_markup=keyboard)
-
+    await message.answer("Чтобы перейти к решению пропиши /solution")
+    
 
 @dp.message_handler(commands=["solution"])
 async def solution_handler(message: types.Message):
-    await message.answer("Всего доступно два вида задания. В первом указан только IP-адрес и битность маски, во втором еще указано количество компьютеров и прикреплен файл с текстовым описанием")
+    await message.answer("Всего доступно два вида задания. В первом указан только IP-адрес и битность маски, во втором еще указано количество компьютеров и прикреплен файл с текстовым описанием", reply_markup=types.ReplyKeyboardRemove())
     with open("users.txt", "a") as fp:
       json.dump(str(message.date) + " " +str(message.from_user.username) , fp)
       fp.write("\n")
@@ -108,7 +93,10 @@ async def process_sm_mask(message: types.Message, state: FSMContext):
     await message.answer(info[4].exploded)  
     await message.answer("Максимальное количество узлов в данной сети")
     await message.answer(info[5]) 
-    await Task.Submit
+    await Task.Submit.set()
+    async with state.proxy() as info:
+      incopml_data = info.as_dict()
+      createLogs("midterm.txt",  "Unknown", message, incopml_data)
     await ask_correct(message)
   
 
@@ -212,7 +200,7 @@ async def solution_help(message: types.Message):
 @dp.message_handler(lambda message: message.from_user.id == int(os.getenv("Admin_id")) and message.text == "/status")
 async def proccess_status(message: types.Message):
   stats = statCollector()
-  await message.answer("Всего решено {} задач: {} успешно {} нет из них уникальных {} ".format(stats[2], stats[0], stats[1], stats[3]))
+  await message.answer("Всего есть данные о {} задач: {} успешно {} нет из них уникальных {}, решений без статуса {}".format(stats[2], stats[0], stats[1], stats[3], stats[4]-stats[2]))
 
 
 @dp.message_handler(lambda message: message.from_user.id == int(os.getenv("Admin_id")) and message.text == "/getlogs")
