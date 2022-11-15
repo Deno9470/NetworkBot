@@ -7,7 +7,7 @@ from aiogram import Bot, Dispatcher, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher import FSMContext
 from task import Task 
-from utils import is_IpMaskValid, networksIpCounter, smallIpInfo ,statCollector, consructLog
+from utils import is_IpMaskValid, networksIpCounter, smallIpInfo, statCollector, consructOutputLog, createLogs
 
 logging.basicConfig(level=logging.INFO)
 bot = Bot(token=os.getenv("TOKEN"))
@@ -108,8 +108,8 @@ async def process_sm_mask(message: types.Message, state: FSMContext):
     await message.answer(info[4].exploded)  
     await message.answer("Максимальное количество узлов в данной сети")
     await message.answer(info[5]) 
-    await state.finish()
-    #await Task.next()
+    await Task.Submit
+    await ask_correct(message)
   
 
 @dp.message_handler(text=["Второй тип"])
@@ -159,17 +159,19 @@ async def process_pc(message: types.Message, state: FSMContext):
       await message.answer("При вычислении произошла ошибка, проверь введенные данные. Если ошибки нет, к сожалению, я не смогу решить такую задачу")
       async with state.proxy() as info:
         error_data = info.as_dict()
-      error_data["Username"] = message.from_user.mention
-      error_data["Time"] = str(message.date)
-      with open("errors.txt", "a") as fp:
-        json.dump(error_data , fp)
-        fp.write("\n")
+        createLogs("errors.txt", "Error", message, error_data)
       await bot.send_message(os.getenv("Admin_id"), "ALARM {} Пользователь {} вызвал ошибку вычисления ".format(error_data["Time"], error_data["Username"]))
       await cancel_handler(message, state)
     for network in sorted(networks.items()):
       await message.answer(str(network[1][0].exploded)+" "+ str(network[1][1].exploded))
-      
     await message.answer("Вводить ответ на сайте можно копируя строки целиком")
+    async with state.proxy() as info:
+      incopml_data = info.as_dict()
+      createLogs("midterm.txt",  "Unknown", message, incopml_data)
+    await Task.next()
+    await ask_correct(message)
+  
+async def ask_correct(message: types.Message):
     kb = [
       [
         types.KeyboardButton(text="Все правильно"),
@@ -182,28 +184,13 @@ async def process_pc(message: types.Message, state: FSMContext):
         input_field_placeholder="Ответ полностью правильный"
     )
     await message.answer("Ответ полностью правильный?", reply_markup=keyboard)
-    async with state.proxy() as info:
-      incopml_data = info.as_dict()
-    incopml_data["Username"] = message.from_user.mention
-    incopml_data["Correct"] = "Unknown"
-    incopml_data["Time"] = str(message.date)
-    with open("midterm.txt", "a") as fp:
-      json.dump(incopml_data , fp)
-      fp.write("\n")
-    await Task.next()
-
    
 @dp.message_handler(text=["Все правильно"], state=Task.Submit)
 async def process_correct(message: types.Message, state: FSMContext):
     await message.answer("Рад был помочь! Хорошего дня!", reply_markup=types.ReplyKeyboardRemove())
     async with state.proxy() as info:
       data = info.as_dict()
-    data["Username"] = message.from_user.mention
-    data["Correct"] = "True"
-    data["Time"] = str(message.date)
-    with open("storage.txt", "a") as fp:
-      json.dump(data , fp)
-      fp.write("\n")
+      createLogs("storage.txt", "True", message, data)
     await state.finish()
 
 
@@ -212,12 +199,7 @@ async def proccess_error(message: types.Message, state: FSMContext):
     await message.answer("Такого явно не должно быть, информация уже передана разработчику, приношу извинения за неудобства", reply_markup=types.ReplyKeyboardRemove())
     async with state.proxy() as info:
       data = info.as_dict()
-    data["Username"] = message.from_user.mention
-    data["Correct"] = "False"
-    data["Time"] = str(message.date)
-    with open("storage.txt", "a") as fp:
-      json.dump(data , fp)
-      fp.write("\n")
+      createLogs("storage.txt", "False", message, data)
     await state.finish()
     await bot.send_message(os.getenv("Admin_id"), "ALARM {} Пользователь {} прожал кнопку 'Что-то не так..' ".format(data["Time"], data["Username"]))
 
@@ -237,7 +219,7 @@ async def proccess_status(message: types.Message):
 async def proccess_getlogs(message: types.Message):
   file_list = ["users.txt", "errors.txt","midterm.txt", "storage.txt"]
   for file in file_list:
-    file_сontent = "Content of {}\n".format(file) + consructLog(file)
+    file_сontent = "Content of {}\n".format(file) + consructOutputLog(file)
     await message.answer(file_сontent)
 
 @dp.message_handler()
