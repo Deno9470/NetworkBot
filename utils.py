@@ -53,18 +53,26 @@ def smallIpInfo(ip: str, mask: str):
 def statCollector():
   correct_answers = 0
   incorrect_answers = -1
+  incmpl_answers = -1
   answers = -1
   uniq = set() 
   with open("storage.txt", "r") as file:
     for line in file.read().split("\n"):
+      if line.find("Small") > 0:
+        continue
       answers +=1
-      if line.find("True", line.rfind("Correct"), line.rfind("Correct") + 17) > 0: 
+      if line.find("True", line.rfind("Correct"), line.rfind("Correct") + 18) > 0: 
         correct_answers+=1
       else: 
         incorrect_answers+=1
       uniq.add(line[ : line.find("Username")])
-  return [correct_answers, incorrect_answers, answers, len(uniq)-1]
-
+  with open("midterm.txt", "r") as file:
+    for line in file.read().split("\n"):
+      if line.find("Small") > 0:
+        continue
+      incmpl_answers +=1
+  return [correct_answers, incorrect_answers, answers, len(uniq)-1, incmpl_answers]
+  
 def createLogs(file: str, status: str, message, data): 
   data["Username"] = message.from_user.mention
   data["Correct"] =  status
