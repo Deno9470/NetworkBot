@@ -1,4 +1,5 @@
 *.txt
+!requirements.txt 
 poetry.lock
 pyproject.toml
 venv
@@ -7,3 +8,4 @@ replit.nix
 .upm
 .config/
 __pycache__/
+.breakpoints
