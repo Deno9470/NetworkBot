@@ -34,6 +34,21 @@ def networksIpCounter(ip, mask, comps):
     print(network[0]+1,network[1][0].exploded, network[1][1].exploded)
     ans.append([network[1][0].exploded, network[1][1].exploded])
 
+
+def smallIpInfo(ip: str, mask: str):
+  d = "."
+  info = []
+  net = ipaddress.IPv4Network(ip + "/" + mask, False)
+  mask = format(int(net.netmask), "b")
+  info.append(mask[:8] + d + mask[8:16] + d + mask[16:24] + d + mask[24:])
+  info.append(net.network_address)  
+  info.append(net.broadcast_address)
+  info.append(net[1])
+  info.append(net[-2])
+  info.append(net.num_addresses - 2)
+  return info
+
+
 def statCollector():
   correct_answers = 0
   incorrect_answers = -1
@@ -48,3 +63,6 @@ def statCollector():
         incorrect_answers+=1
       uniq.add(line[ : line.find("Username")])
   return [correct_answers, incorrect_answers, answers, len(uniq)-1]
+
+#def logCreator(file: str, data: dict, status: str, message: types.Message)
+#TODO
