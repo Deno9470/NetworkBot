@@ -1,4 +1,5 @@
 import ipaddress
+import json
 def is_IpMaskValid(ip : str = "192.168.0.1",
                    mask : str = "255.255.255.0"):
   try:
@@ -7,7 +8,7 @@ def is_IpMaskValid(ip : str = "192.168.0.1",
   except ValueError:
       return False
 
-def consructLog(file: str):
+def consructOutputLog(file: str):
   file_сontent = ""
   with open(file, "r") as f:
     for line in f:
@@ -64,5 +65,10 @@ def statCollector():
       uniq.add(line[ : line.find("Username")])
   return [correct_answers, incorrect_answers, answers, len(uniq)-1]
 
-#def logCreator(file: str, data: dict, status: str, message: types.Message)
-#TODO
+def createLogs(file: str, status: str, message, data): 
+  data["Username"] = message.from_user.mention
+  data["Correct"] =  status
+  data["Time"] = str(message.date)
+  with open(file, "a") as fp:
+      json.dump(data , fp)
+      fp.write("\n")
