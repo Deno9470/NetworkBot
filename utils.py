@@ -61,7 +61,7 @@ def statCollector():
       if line.find("Small") > 0:
         continue
       answers +=1
-      if line.find("True", line.rfind("Correct"), line.rfind("Correct") + 18) > 0: 
+      if line.find("True", line.rfind("Status"), line.rfind("Status") + 18) > 0: 
         correct_answers+=1
       else: 
         incorrect_answers+=1
@@ -75,7 +75,7 @@ def statCollector():
   
 def createLogs(file: str, status: str, message, data): 
   data["Username"] = message.from_user.mention
-  data["Correct"] =  status
+  data["Status"] =  status
   data["Time"] = str(message.date)
   with open(file, "a") as fp:
       json.dump(data , fp)

@@ -18,14 +18,12 @@ dp = Dispatcher(bot, storage=MemoryStorage())
 async def cmd_start(message: types.Message):
     await message.answer("Привет! Этот бот умеет решать задачи \n из упражнения главы Обзор стека TCP/IP.", reply_markup=types.ReplyKeyboardRemove())
     await message.answer("Чтобы перейти к решению пропиши /solution")
+    createLogs("users.txt", "Start", message, data={"Time":"","Username":"" })
     
 
 @dp.message_handler(commands=["solution"])
 async def solution_handler(message: types.Message):
     await message.answer("Всего доступно два вида задания. В первом указан только IP-адрес и битность маски, во втором еще указано количество компьютеров и прикреплен файл с текстовым описанием", reply_markup=types.ReplyKeyboardRemove())
-    with open("users.txt", "a") as fp:
-      json.dump(str(message.date) + " " +str(message.from_user.username) , fp)
-      fp.write("\n")
     kb = [
       [
         types.KeyboardButton(text="Первый тип"),
