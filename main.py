@@ -203,7 +203,7 @@ async def proccess_status(message: types.Message):
 
 @dp.message_handler(lambda message: message.from_user.id == int(os.getenv("Admin_id")) and message.text == "/getlogs")
 async def proccess_getlogs(message: types.Message):
-  file_list = ["users.txt", "errors.txt","midterm.txt", "storage.txt"]
+  file_list = ["users.txt", "storage.txt","midterm.txt", "errors.txt"]
   for file in file_list:
     file_сontent = "Content of {}\n".format(file) + consructOutputLog(file)
     await message.answer(file_сontent)
