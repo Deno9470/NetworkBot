@@ -1,5 +1,4 @@
 import os
-import json
 
 import asyncio
 import logging
@@ -23,7 +22,7 @@ async def cmd_start(message: types.Message):
 
 @dp.message_handler(commands=["solution"])
 async def solution_handler(message: types.Message):
-    await message.answer("Всего доступно два вида задания. В первом указан только IP-адрес и битность маски, во втором еще указано количество компьютеров и прикреплен файл с текстовым описанием", reply_markup=types.ReplyKeyboardRemove())
+    await message.answer("Всего на странице два задания. Они могут идти в разном порядке. В первом указан только IP-адрес и битность маски, во втором еще указано количество компьютеров и прикреплен файл с текстовым описанием", reply_markup=types.ReplyKeyboardRemove())
     kb = [
       [
         types.KeyboardButton(text="Первый тип"),
@@ -203,7 +202,7 @@ async def proccess_status(message: types.Message):
 
 @dp.message_handler(lambda message: message.from_user.id == int(os.getenv("Admin_id")) and message.text == "/getlogs")
 async def proccess_getlogs(message: types.Message):
-  file_list = ["users.txt", "storage.txt","midterm.txt", "errors.txt"]
+  file_list = ["users.txt", "midterm.txt","storage.txt", "errors.txt"]
   for file in file_list:
     file_сontent = "Content of {}\n".format(file) + consructOutputLog(file)
     await message.answer(file_сontent)
