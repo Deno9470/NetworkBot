@@ -28,7 +28,7 @@ def networksIpCounter(ip, mask, comps):
     subnets = list(network.subnets(new_prefix=32-n))
     networks[index_max] = subnets[0].network_address, subnets[0].netmask
     comps[index_max] = -1
-    network = ipaddress.IPv4Network(str(subnets[0].broadcast_address + 1) + "/" +     str(subnets[0].netmask), False)
+    network = ipaddress.IPv4Network(str(subnets[0].broadcast_address + 1) + "/" + str(subnets[0].netmask), False)
 
   return networks
   for network in sorted(networks.items()):

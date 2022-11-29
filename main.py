@@ -11,7 +11,7 @@ from utils import is_IpMaskValid, networksIpCounter, smallIpInfo, statCollector,
 logging.basicConfig(level=logging.INFO)
 bot = Bot(token=os.getenv("TOKEN"))
 dp = Dispatcher(bot, storage=MemoryStorage())
-
+admins = [os.getenv("Admin_id")]
 
 @dp.message_handler(commands=["start"])
 async def cmd_start(message: types.Message):
@@ -145,7 +145,8 @@ async def process_pc(message: types.Message, state: FSMContext):
       async with state.proxy() as info:
         error_data = info.as_dict()
         createLogs("errors.txt", "Error", message, error_data)
-      await bot.send_message(os.getenv("Admin_id"), "ALARM {} Пользователь {} вызвал ошибку вычисления ".format(error_data["Time"], error_data["Username"]))
+      for admin in admins:      
+        await bot.send_message(admin, "ALARM {} Пользователь {} вызвал ошибку вычисления ".format(error_data["Time"], error_data["Username"]))
       await cancel_handler(message, state)
     for network in sorted(networks.items()):
       await message.answer(str(network[1][0].exploded)+" "+ str(network[1][1].exploded))
@@ -186,7 +187,8 @@ async def proccess_error(message: types.Message, state: FSMContext):
       data = info.as_dict()
       createLogs("storage.txt", "False", message, data)
     await state.finish()
-    await bot.send_message(os.getenv("Admin_id"), "ALARM {} Пользователь {} прожал кнопку 'Что-то не так..' ".format(data["Time"], data["Username"]))
+    for admin in admins:
+      await bot.send_message(admin, "ALARM {} Пользователь {} прожал кнопку 'Что-то не так..' ".format(data["Time"], data["Username"]))
 
 
 @dp.message_handler(commands=["help"])
@@ -194,13 +196,13 @@ async def solution_help(message: types.Message):
     await message.answer("Бот умеет решать задачи главы Обзор стека TCP/IP курса Основы Сетевых Технологий")
     await message.answer("Для начала выбора задачи пропиши /solution")
 
-@dp.message_handler(lambda message: message.from_user.id == int(os.getenv("Admin_id")) and message.text == "/status")
+@dp.message_handler(lambda message: message.from_user.id in admins and message.text == "/status")
 async def proccess_status(message: types.Message):
   stats = statCollector()
   await message.answer("Всего есть данные о {} задач: {} успешно {} нет из них уникальных {}, решений без статуса {}".format(stats[2], stats[0], stats[1], stats[3], stats[4]-stats[2]))
 
 
-@dp.message_handler(lambda message: message.from_user.id == int(os.getenv("Admin_id")) and message.text == "/getlogs")
+@dp.message_handler(lambda message: message.from_user.id in admins and message.text == "/getlogs")
 async def proccess_getlogs(message: types.Message):
   file_list = ["users.txt", "midterm.txt","storage.txt", "errors.txt"]
   for file in file_list:
