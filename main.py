@@ -146,7 +146,7 @@ async def process_pc(message: types.Message, state: FSMContext):
         error_data = info.as_dict()
         createLogs("errors.txt", "Error", message, error_data)
       for admin in admins:      
-        await bot.send_message(admin, "ALARM {} Пользователь {} вызвал ошибку вычисления ".format(error_data["Time"], error_data["Username"]))
+        await bot.send_message(int(admin), "ALARM {} Пользователь {} вызвал ошибку вычисления ".format(error_data["Time"], error_data["Username"]))
       await cancel_handler(message, state)
     for network in sorted(networks.items()):
       await message.answer(str(network[1][0].exploded)+" "+ str(network[1][1].exploded))
@@ -188,7 +188,7 @@ async def proccess_error(message: types.Message, state: FSMContext):
       createLogs("storage.txt", "False", message, data)
     await state.finish()
     for admin in admins:
-      await bot.send_message(admin, "ALARM {} Пользователь {} прожал кнопку 'Что-то не так..' ".format(data["Time"], data["Username"]))
+      await bot.send_message(int(admin), "ALARM {} Пользователь {} прожал кнопку 'Что-то не так..' ".format(data["Time"], data["Username"]))
 
 
 @dp.message_handler(commands=["help"])
