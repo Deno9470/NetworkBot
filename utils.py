@@ -23,7 +23,8 @@ def networksIpCounter(ip, mask, comps):
   network = ipaddress.IPv4Network(ip + "/" + mask, False)
   networks = {}
   for i in range(0, len(comps)): 
-    index_max = comps.index(max(comps))
+    all_ip = [x + y for (x,y) in zip(comps, add_ip)]
+    index_max = all_ip.index(max(all_ip))
     n = (comps[index_max] + add_ip[index_max] - 1).bit_length() 
     subnets = list(network.subnets(new_prefix=32-n))
     networks[index_max] = subnets[0].network_address, subnets[0].netmask
