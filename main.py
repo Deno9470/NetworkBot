@@ -216,3 +216,13 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
+
+
+
+@dp.message_handler(condition)
+async def func_name(message: types.Message):
+    # some code
+    # ...
+    # ...
+    # await message.answer("Some text")
